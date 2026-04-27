@@ -1,140 +1,160 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, animate, useInView } from "framer-motion";
+import apple from "../../public/apple.svg";
+
+// --- ANIMATION HELPERS ---
+
+// 1. Slot Counter Logic - Triggers when in view
+const SlotCounter = ({ targetNumber, duration = 2.5 }) => {
+  const [count, setCount] = useState(0);
+  const nodeRef = useRef(null);
+  const isInView = useInView(nodeRef, { once: true, margin: "-50px" });
+
+  useEffect(() => {
+    if (isInView) {
+      const controls = animate(1, targetNumber, {
+        duration: duration,
+        ease: [0.33, 1, 0.68, 1],
+        onUpdate: (value) => setCount(Math.floor(value)),
+      });
+      return () => controls.stop();
+    }
+  }, [isInView, targetNumber, duration]);
+
+  return <span ref={nodeRef}>{count}</span>;
+};
+
+// 2. Marquee Row Logic
+const MarqueeRow = ({ tags, direction = 1, speed = 25 }) => {
+  const duplicatedTags = [...tags, ...tags, ...tags];
+  return (
+    <div className="flex w-full overflow-hidden py-3">
+      <motion.div
+        className="flex gap-6 items-center whitespace-nowrap"
+        animate={{ x: direction > 0 ? [0, -1000] : [-1000, 0] }}
+        transition={{ duration: speed, repeat: Infinity, ease: "linear" }}
+      >
+        {duplicatedTags.map((tag, i) => (
+          <div key={i} className="flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-gray-100 shadow-sm">
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white ${tag.safe ? 'bg-[#386641]' : 'bg-black'}`}>
+              {tag.safe ? "✓" : "✕"}
+            </div>
+            <span className="text-base font-bold text-[#273522]">{tag.label}</span>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
 
 export default function HealthBenefits() {
-  const cardVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0 }
-  };
+  const row1 = [{ label: "Non-GMO", safe: true }, { label: "Saccharin", safe: false }, { label: "Cholesterol-Free", safe: true }, { label: "High Fibre", safe: true }];
+  const row2 = [{ label: "Artificial Colors", safe: false }, { label: "Gluten-Free", safe: true }, { label: "Palm Oil", safe: false }, { label: "Rich in Antioxidants", safe: true }];
 
   return (
-    <section className="relative bg-[#F5FAF6]">
-      {/* Green Box Section */}
-      <div className="pb-24 md:py-48 bg-[#386641] px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row p-8 md:p-0 justify-between max-w-5xl mx-auto items-start gap-10"
-        >
-          {/* Heading Area */}
-          <div className="flex relative text-primary items-center justify-center">
-            <h2 className="font-semibold max-w-xl text-2xl md:text-[3.2rem] text-white leading-tight">
-              Health Benefits of Using Olive
-            </h2>
-          </div>
+    <section className="relative bg-[#F5FAF6] py-20">
 
-          {/* Description & Action */}
-          <div className="flex gap-6 flex-col">
-            <div className="max-w-sm md:text-xl text-sm text-[#F5FAF6]">
-              Olive proactively flags harmful ingredients and offers
-              personalized recommendations, empowering you to make better
-              choices for your family's health.
+      <div className="pb-32 md:py-48 bg-[#386641] px-4">
+        <div className="flex flex-col md:flex-row p-8 md:p-0 justify-between max-w-7xl mx-auto items-start gap-10">
+          <h2 className="font-semibold max-w-2xl text-3xl md:text-[3.8rem] text-white leading-tight">
+            Health Benefits of Using Olive
+          </h2>
+          <div className="flex gap-8 flex-col">
+            <div className="max-w-md md:text-2xl text-lg text-[#F5FAF6] font-light leading-relaxed">
+              Olive proactively flags harmful ingredients and offers personalized recommendations for your family's health.
             </div>
-            <div className="flex items-center gap-4">
-              <a
-                href="#"
-                className="inline-flex items-center gap-2 rounded-full bg-white text-[#386641] px-6 py-3 text-sm font-medium shadow-sm hover:bg-opacity-90 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M15.079 5.999l.239 .012c1.43 .097 3.434 1.013 4.508 2.586a1 1 0 0 1 -.344 1.44c-.05 .028 -.372 .158 -.497 .217a4.15 4.15 0 0 0 -.722 .431c-.614 .461 -.948 1.009 -.942 1.694c.01 .885 .339 1.454 .907 1.846c.208 .143 .436 .253 .666 .33c.126 .043 .426 .116 .444 .122a1 1 0 0 1 .662 .942c0 2.621 -3.04 6.381 -5.286 6.381c-.79 0 -1.272 -.091 -1.983 -.315l-.098 -.031c-.463 -.146 -.702 -.192 -1.133 -.192c-.52 0 -.863 .06 -1.518 .237l-.197 .053c-.575 .153 -.964 .226 -1.5 .248c-2.749 0 -5.285 -5.093 -5.285 -9.072c0 -3.87 1.786 -6.92 5.286 -6.92c.297 0 .598 .045 .909 .128c.403 .107 .774 .26 1.296 .508c.787 .374 .948 .44 1.009 .44h.016c.03 -.003 .128 -.047 1.056 -.457c1.061 -.467 1.864 -.685 2.746 -.616l-.24 -.012z" />
-                  <path d="M14 1a1 1 0 0 1 1 1a3 3 0 0 1 -3 3a1 1 0 0 1 -1 -1a3 3 0 0 1 3 -3z" />
-                </svg>
-                Download for iOS
-              </a>
-            </div>
+            <a href="#" className="w-fit inline-flex items-center gap-2 rounded-full bg-white text-[#386641] px-8 py-4 text-base font-bold shadow-lg transition-transform hover:scale-105">
+              <img src={apple} alt="apple" /> Download for iOS
+            </a>
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Overlapping Cards Section */}
-      <div className="-mt-24 flex flex-col px-4 md:px-8 pb-24 gap-8">
-        {/* Feature Card 1 */}
-        <motion.div 
-          variants={cardVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="p-4 bg-white max-w-5xl mx-auto rounded-3xl grid grid-cols-1 lg:grid-cols-2 shadow-sm border border-gray-100"
-        >
-          <div className="p-8 flex flex-col justify-center">
-            <h3 className="text-2xl font-bold mb-4 text-gray-900">
-              Achieve Nutritional Clarity
-            </h3>
-            <p className="text-gray-600 leading-relaxed">
-              Olive breaks down every ingredient so you know exactly what you're
-              eating and how it impacts your long-term health goals.
-            </p>
-          </div>
-          <div className="bg-gray-50 rounded-2xl overflow-hidden min-h-[300px] flex items-center justify-center">
-            <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Feature+Preview" alt="Feature Preview" className="w-full h-full object-cover" />
-          </div>
-        </motion.div>
+      <div className="-mt-32 flex flex-col px-4 md:px-8 pb-24 gap-12">
 
-        {/* Feature Card 2 */}
-        <motion.div 
-          variants={cardVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="p-4 bg-white max-w-5xl mx-auto rounded-3xl grid grid-cols-1 lg:grid-cols-2 shadow-sm border border-gray-100"
-        >
-          <div className="p-8 flex flex-col justify-center">
-            <h3 className="text-2xl font-bold mb-4 text-gray-900">
-              Proactive Ingredient Filtering
-            </h3>
-            <p className="text-gray-600 leading-relaxed">
-              Instantly identify hidden sugars, synthetic dyes, and harmful
-              additives before they reach your shopping cart.
-            </p>
+        <div className="p-6 bg-white max-w-7xl w-full mx-auto rounded-[40px] grid grid-cols-1 lg:grid-cols-2 shadow-xl border border-gray-100 overflow-hidden min-h-[600px]">
+          <div className="p-12 flex flex-col justify-center">
+            <h3 className="text-4xl font-bold mb-6 text-gray-900">Achieve Nutritional Clarity</h3>
+            <ul className="space-y-6">
+              {[
+                "Olive breaks down every ingredient into clear information.",
+                "Scores products out of 100 based on health experts.",
+                "Informed decisions for improved health outcomes."
+              ].map((text, i) => (
+                <li key={i} className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-[#386641] flex items-center justify-center shrink-0 mt-1 shadow-md">
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                  <p className="text-gray-600 text-lg leading-relaxed">{text}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="bg-gray-50 rounded-2xl overflow-hidden min-h-[300px] flex items-center justify-center relative overflow-hidden">
-            {/* Animated Horizontal Track */}
-            <div className="absolute inset-0 flex items-center bg-gray-50 overflow-hidden opacity-50">
-               <motion.div 
-                 animate={{ x: ["0%", "-50%"] }} 
-                 transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
-                 className="flex gap-4 whitespace-nowrap pl-4"
-               >
-                 {["High Fibre", "No MSG", "Low PFAS", "No Seed Oils", "High Fibre", "No MSG", "Low PFAS", "No Seed Oils"].map((tag, i) => (
-                   <span key={i} className="bg-white px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold text-gray-600 shadow-sm">{tag}</span>
-                 ))}
-               </motion.div>
+
+          <div className="bg-[#E8F3EA] rounded-[32px] relative flex flex-col items-center justify-center overflow-hidden p-10">
+
+            <div className="relative w-full h-64 flex items-center justify-center mb-16">
+              <img
+                src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Fhow-to%2Fslider%2Fproduct-1.png&w=3840&q=75"
+                className="absolute w-40 h-56 object-cover rounded-2xl shadow-xl border-4 border-white"
+                style={{ transform: "translateX(-90px) rotate(-18deg)" }}
+              />
+              <img
+                src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Fhow-to%2Fslider%2Fproduct-2.png&w=3840&q=75"
+                className="absolute w-40 h-56 object-cover rounded-2xl shadow-xl border-4 border-white"
+                style={{ transform: "translateX(90px) rotate(18deg)" }}
+              />
+              <img
+                src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Fhow-to%2Fslider%2Fproduct-3.png&w=3840&q=75"
+                className="relative z-10 w-48 h-64 object-cover rounded-2xl shadow-2xl border-4 border-white"
+              />
             </div>
-            <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Feature+Preview" alt="Feature Preview" className="w-full h-full object-cover relative z-10 opacity-20" />
+            <motion.div
+              initial={{ y: 60, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.7, type: "spring", damping: 12 }}
+              className="bg-white p-7 rounded-[28px] shadow-2xl border border-gray-100 flex items-center gap-6 w-full max-w-[340px] z-20"
+            >
+              <img src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Fstratus-ice-cream.png&w=96&q=75" className="w-16 h-16 object-contain" alt="product" />
+              <div>
+                <h4 className="font-bold text-[#1F3824] text-lg">Straus Ice Cream</h4>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-black text-[#386641]">
+                    <SlotCounter targetNumber={96} />
+                  </span>
+                  <span className="text-gray-400 text-base font-bold">/100</span>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Feature Card 3 */}
-        <motion.div 
-          variants={cardVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="p-4 bg-white max-w-5xl mx-auto rounded-3xl grid grid-cols-1 lg:grid-cols-2 shadow-sm border border-gray-100"
-        >
-          <div className="p-8 flex flex-col justify-center">
-            <h3 className="text-2xl font-bold mb-4 text-gray-900">
-              Real Health Outcomes for Your Family
-            </h3>
-            <p className="text-gray-600 leading-relaxed">
-              Empowers parents to feel more in control of their family's health, delivering personalized suggestions and promoting long-term well-being through informed, balanced decisions.
-            </p>
+        <div className="p-6 bg-white max-w-7xl w-full mx-auto rounded-[40px] grid grid-cols-1 lg:grid-cols-2 shadow-xl border border-gray-100 overflow-hidden min-h-[600px]">
+          <div className="p-12 flex flex-col justify-center order-2 lg:order-1">
+            <h3 className="text-4xl font-bold mb-6 text-gray-900">Proactive Filtering</h3>
+            <p className="text-gray-600 text-xl leading-relaxed">Instantly identify hidden sugars and dyes before they reach your cart.</p>
           </div>
-          <div className="bg-gray-50 rounded-2xl overflow-hidden min-h-[300px] flex items-center justify-center">
-            <img src="https://placehold.co/600x400/e2e8f0/64748b?text=Feature+Preview" alt="Feature Preview" className="w-full h-full object-cover" />
+          <div className="bg-[#FFF1F2] rounded-[32px] min-h-[500px] relative overflow-hidden flex items-center justify-center order-1 lg:order-2">
+            <div className="absolute flex flex-col gap-5 w-[180%]" style={{ transform: "rotate(-15deg) skewX(-15deg)" }}>
+              <MarqueeRow tags={row1} direction={1} speed={22} />
+              <MarqueeRow tags={row2} direction={-1} speed={30} />
+              <MarqueeRow tags={row1} direction={1} speed={25} />
+              <MarqueeRow tags={row2} direction={-1} speed={35} />
+            </div>
           </div>
-        </motion.div>
+        </div>
+
+        <div className="p-6 bg-white max-w-7xl w-full mx-auto rounded-[40px] grid grid-cols-1 lg:grid-cols-2 shadow-xl border border-gray-100 overflow-hidden min-h-[600px]">
+          <div className="p-12 flex flex-col justify-center">
+            <h3 className="text-4xl font-bold mb-6 text-gray-900">Real Outcomes</h3>
+            <p className="text-gray-600 text-xl leading-relaxed">Empowering parents to feel more in control of their family's health through informed decisions.</p>
+          </div>
+          <div className="bg-[#F0F4FF] rounded-[32px] min-h-[500px] flex items-center justify-center overflow-hidden">
+            <img src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Ftitle.png&w=256&q=75" alt="Family" className="w-full h-full object-cover" />
+          </div>
+        </div>
+
       </div>
     </section>
   );
