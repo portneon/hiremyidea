@@ -116,7 +116,7 @@ export default function HealthBenefits() {
               transition={{ delay: 0.7, type: "spring", damping: 12 }}
               className="bg-white p-7 rounded-[28px] shadow-2xl border border-gray-100 flex items-center gap-6 w-full max-w-[340px] z-20"
             >
-              <img src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Fstratus-ice-cream.png&w=96&q=75" className="w-16 h-16 object-contain" alt="product" />
+              <img src="https://www.oliveapp.com/_next/image?url=%2Fassets%2Fimages%2Fhow-to%2Fslider%2Fstraus-ice-cream-description.png&w=256&q=75" className="w-16 h-16 object-contain" alt="product" />
               <div>
                 <h4 className="font-bold text-[#1F3824] text-lg">Straus Ice Cream</h4>
                 <div className="flex items-baseline gap-2">
